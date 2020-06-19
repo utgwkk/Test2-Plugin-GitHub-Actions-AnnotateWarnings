@@ -8,11 +8,15 @@ use URI::Escape qw(uri_escape);
 
 our $VERSION = "0.01";
 
-# By default, no warning is ignored.
-my $ignore_if = sub {
+sub __ignore_no_warnings {
     my ($message, $filename, $line) = @_;
     return 0;
-};
+}
+
+# By default, no warning is ignored.
+my $ignore_if = \&__ignore_no_warnings;
+
+my $_orig_warn_handler;
 
 sub import {
     my ($class, %args) = @_;
@@ -21,7 +25,8 @@ sub import {
 
     $ignore_if = $args{ignore_if} if exists $args{ignore_if};
 
-    my $_orig_warn_handler = $SIG{__WARN__};
+    $_orig_warn_handler = $SIG{__WARN__};
+
     $SIG{__WARN__} = sub {
         my (undef, $file, $line) = caller;
         my $message = $_[0] // "Warning: Something's wrong";
@@ -37,6 +42,13 @@ sub import {
             goto &$_orig_warn_handler;
         }
     };
+}
+
+sub unimport {
+    my ($class) = @_;
+
+    $ignore_if = \&__ignore_no_warnings;
+    $SIG{__WARN__} = $_orig_warn_handler;
 }
 
 sub _issue_warning {
