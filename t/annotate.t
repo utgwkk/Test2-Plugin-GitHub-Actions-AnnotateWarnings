@@ -25,6 +25,6 @@ like $event, array {
     item event 'Ok';
 };
 
-is $call, [$file, $line, 'oops'], 'annotate with warning';
+is $call, [$file, $line, "oops at $file line $line."], 'annotate with warning';
 
 done_testing;
