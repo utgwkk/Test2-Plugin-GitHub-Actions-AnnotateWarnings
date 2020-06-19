@@ -7,7 +7,7 @@ use Module::Spy qw(spy_on);
 my $file = __FILE__;
 my $line;
 
-my $g = spy_on('Test2::Plugin::GitHub::Actions::AnnotateFailedTest', '_issue_warning');
+my $g = spy_on('Test2::Plugin::GitHub::Actions::AnnotateWarnings', '_issue_warning');
 
 my $event = intercept {
     local $ENV{GITHUB_ACTIONS} = 'true';
