@@ -23,13 +23,13 @@ sub import {
 
     my $_orig_warn_handler = $SIG{__WARN__};
     $SIG{__WARN__} = sub {
-        my (undef, $filename, $line) = caller;
+        my (undef, $file, $line) = caller;
         my $message = $_[0] // "Warning: Something's wrong";
         chomp $message;
         $message = _escape_data($message);
 
         my $stderr = test2_stderr();
-        _issue_warning($file, $line, $message) unless $ignore_if->($message, $filename, $line);
+        _issue_warning($file, $line, $message) unless $ignore_if->($message, $file, $line);
 
         # from Test::Warnings
         # TODO: this doesn't handle blessed coderefs... does anyone care?
