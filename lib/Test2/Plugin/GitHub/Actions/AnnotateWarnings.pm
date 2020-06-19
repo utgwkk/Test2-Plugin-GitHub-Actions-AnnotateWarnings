@@ -3,9 +3,60 @@ use 5.008001;
 use strict;
 use warnings;
 
+use Test2::API qw(test2_stderr);
+use URI::Escape qw(uri_escape);
+
 our $VERSION = "0.01";
 
+# By default, no warning is ignored.
+my $ignore_if = sub {
+    my ($message, $filename, $line) = @_;
+    return 0;
+};
 
+sub import {
+    my ($class, %args) = @_;
+
+    return unless $ENV{GITHUB_ACTIONS};
+
+    $ignore_if = $args{ignore_if} if exists $args{ignore_if};
+
+    my $_orig_warn_handler = $SIG{__WARN__};
+    $SIG{__WARN__} = sub {
+        my (undef, $filename, $line) = caller;
+        my $message = $_[0] // "Warning: Something's wrong";
+        chomp $message;
+        $message = _escape_data($message);
+
+        my $stderr = test2_stderr();
+        _issue_warning($file, $line, $message) unless $ignore_if->($message, $filename, $line);
+
+        # from Test::Warnings
+        # TODO: this doesn't handle blessed coderefs... does anyone care?
+        if ($_orig_warn_handler and ((ref $_orig_warn_handler eq 'CODE') or ($_orig_warn_handler ne 'DEFAULT' and $_orig_warn_handler ne 'IGNORE' and defined &$_orig_warn_handler))) {
+            goto &$_orig_warn_handler;
+        }
+    };
+}
+
+sub _issue_warning {
+    my ($file, $line, $detail) = @_;
+
+    my $stderr = test2_stderr();
+
+    if (length $detail) {
+        $stderr->printf("::warning file=%s,line=%d::%s\n", $file, $line, _escape_data($detail));
+    } else {
+        $stderr->printf("::warning file=%s,line=%d\n", $file, $line);
+    }
+}
+
+# escape a message of workflow command.
+# see also: https://github.com/actions/toolkit/blob/30e0a77337213de5d4e158b05d1019c6615f69fd/packages/core/src/command.ts#L92-L97
+sub _escape_data {
+    my ($msg) = @_;
+    return uri_escape($msg, "%\r\n");
+}
 
 1;
 __END__
