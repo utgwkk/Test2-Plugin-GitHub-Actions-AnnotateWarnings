@@ -77,15 +77,24 @@ __END__
 
 =head1 NAME
 
-Test2::Plugin::GitHub::Actions::AnnotateWarnings - It's new $module
+Test2::Plugin::GitHub::Actions::AnnotateWarnings - Annotate warnings with GitHub Actions workflow command
 
 =head1 SYNOPSIS
 
+Just use this module and run tests. Note that this plugin is enabled only in a GitHub Actions workflow.
+
     use Test2::Plugin::GitHub::Actions::AnnotateWarnings;
+
+You can also specify a condition whether to annotate a warning or not.
+
+    use Test2::Plugin::GitHub::Actions::AnnotateWarnings ignore_if => sub {
+        my ($message, $file, $line) = @_;
+        return $message =~ /ignore/;
+    };
 
 =head1 DESCRIPTION
 
-Test2::Plugin::GitHub::Actions::AnnotateWarnings is ...
+This plugin provides annotations to the line of warnings for GitHub Actions workflow.
 
 =head1 LICENSE
 
