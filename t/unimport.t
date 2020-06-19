@@ -18,10 +18,8 @@ my $event = intercept {
     warn 'oops';
     ok 1;
 
-    {
-        Test2::Plugin::GitHub::Actions::AnnotateWarnings->unimport;
-        warn 'unimported';
-    }
+    Test2::Plugin::GitHub::Actions::AnnotateWarnings->unimport;
+    warn 'unimported';
 };
 my $call = $g->calls_most_recent;
 undef $g;
