@@ -19,7 +19,7 @@ my $event = intercept {
     ok 1;
 
     {
-        no Test2::Plugin::GitHub::Actions::AnnotateWarnings;
+        Test2::Plugin::GitHub::Actions::AnnotateWarnings->unimport;
         warn 'unimported';
     }
 };
